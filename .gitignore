@@ -1,0 +1,5 @@
+*.o
+*.exe
+*.tar.gz
+micronucleus
+micronucleus*
