@@ -39,7 +39,7 @@ script:
 - export VER=$(git describe)
 - echo ${VER}
 - docker run -v ${PWD}:${BUILD_DIR} -e TARGET_OS=${TARGET_OS} -e CROSS_TRIPLE=${CROSS_TRIPLE}
-  ${EXTRA_ARGS} ${DOCKER_IMAGE} /bin/bash -c \"${CMD}\"
+  ${EXTRA_ARGS} ${DOCKER_IMAGE} /bin/bash -c "apt-get install -y build-essential; apt-get install -y libusb-dev; make clean dist"
 - |
   if [ $TARGET_OS = "win32" ]; then
     rm -f micronucleus-${VER}-win32.tar.gz
