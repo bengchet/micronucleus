@@ -5,10 +5,6 @@ CC=gcc
 
 ifndef TARGET_OS
 ifeq ($(shell uname), Linux)
-	USBFLAGS=$(shell libusb-config --cflags)
-	USBLIBS=$(shell libusb-config --libs)
-	EXE_SUFFIX =
-	OSFLAG = -D LINUX
 	UNAME_M := $(shell uname -m)
 	ifeq ($(UNAME_M),x86_64)
 		TARGET_OS := linux64
@@ -19,6 +15,22 @@ ifeq ($(shell uname), Linux)
 	ifeq ($(UNAME_M), $(filter $(UNAME_M),armv6l armv7l))
 		TARGET_OS := linux-armhf
 	endif
+else ifeq ($(shell uname), Darwin)
+	TARGET_OS := osx
+else ifeq ($(shell uname), OpenBSD)
+	TARGET_OS := openbsd
+else ifeq ($(shell uname), FreeBSD)
+	TARGET_OS := freebsd
+else
+        TARGET_OS := win32
+endif
+endif # TARGET_OS
+
+ifeq ($(shell uname), Linux)
+	USBFLAGS=$(shell libusb-config --cflags)
+	USBLIBS=$(shell libusb-config --libs)
+	EXE_SUFFIX =
+	OSFLAG = -D LINUX
 else ifeq ($(shell uname), Darwin)
 	USBFLAGS=$(shell libusb-config --cflags || libusb-legacy-config --cflags)
 	USBLIBS=$(shell libusb-config --libs || libusb-legacy-config --libs)
@@ -31,27 +43,22 @@ else ifeq ($(shell uname), Darwin)
 	# USBLIBS += -framework IOKit
 	# Uncomment these to create a dual architecture binary:
 	OSFLAG += -arch x86_64 -arch i386
-	TARGET_OS := osx
 else ifeq ($(shell uname), OpenBSD)
 	USBFLAGS=$(shell libusb-config --cflags || libusb-legacy-config --cflags)
 	USBLIBS=$(shell libusb-config --libs || libusb-legacy-config --libs)
 	EXE_SUFFIX =
 	OSFLAG = -D OPENBSD
-	TARGET_OS := openbsd
 else ifeq ($(shell uname), FreeBSD)
 	USBFLAGS=
 	USBLIBS= -lusb
 	EXE_SUFFIX =
 	OSFLAG = -D OPENBSD
-	TARGET_OS := freebsd
 else
 	USBFLAGS =
 	USBLIBS = -lusb
 	EXE_SUFFIX = .exe
 	OSFLAG = -D WIN
-        TARGET_OS := win32
 endif
-endif # TARGET_OS
 
 TARGET := micronucleus$(EXE_SUFFIX)
 
