@@ -102,6 +102,8 @@ $(LWLIBS):
 $(TARGET): $(addsuffix .o, $(LWLIBS))
 	@echo Building command line tool: $@...
 	$(CC) $(CFLAGS) -o $@ $@.c $^ $(LIBS)
+	strip $(TARGET) 2>/dev/null \
+	|| $(CROSS_TRIPLE)-strip $(TARGET)
 
 $(BUILD_DIR):
 	@mkdir -p $@

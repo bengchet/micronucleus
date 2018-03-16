@@ -1,0 +1,64 @@
+language: c
+sudo: required
+services:
+- docker
+matrix:
+  include:
+  - env:
+    - TARGET_OS=linux64
+    - DOCKER_IMAGE=multiarch/crossbuild
+    - CROSS_TRIPLE=x86_64-linux-gnu
+    - BUILD_DIR=/workdir
+  - env:
+    - TARGET_OS=linux32
+    - DOCKER_IMAGE=dockcross/linux-x86
+    - CROSS_TRIPLE=i686-linux-gnu
+    - BUILD_DIR=/work
+  - env:
+    - TARGET_OS=linux-armhf
+    - DOCKER_IMAGE=multiarch/crossbuild
+    - CROSS_TRIPLE=arm-linux-gnueabihf
+    - BUILD_DIR=/workdir
+  - env:
+    - TARGET_OS=win32
+    - DOCKER_IMAGE=multiarch/crossbuild
+    - CROSS_TRIPLE=i686-w64-mingw32
+    - BUILD_DIR=/workdir
+    - EXTRA_ARGS='-e ARCHIVE=tar'
+  - env:
+    - TARGET_OS=osx
+    - DOCKER_IMAGE=multiarch/crossbuild
+    - CROSS_TRIPLE=x86_64-apple-darwin
+    - BUILD_DIR=/workdir
+script:
+- export VER=$(git describe)
+- echo ${VER}
+- docker run --rm -v ${PWD}:${BUILD_DIR} -e TARGET_OS=${TARGET_OS} -e CROSS_TRIPLE=${CROSS_TRIPLE}
+  ${EXTRA_ARGS} ${DOCKER_IMAGE} make clean dist
+- |
+  if [ $TARGET_OS = "win32" ]; then
+    rm -f micronucleus-${VER}-win32.tar.gz
+    zip -r micronucleus-${VER}-win32.zip micronucleus-${VER}-win32/
+  fi
+- file micronucleus-${VER}-${TARGET_OS}/*
+- ls -l micronucleus-${VER}-${TARGET_OS}/*
+- export DIST_NAME=$(ls -1 micronucleus-${VER}-${TARGET_OS}.*)
+- DIST_SIZE=$(wc -c <${DIST_NAME} 2>/dev/null | tr -d ' ')
+- DIST_SHA256=$(shasum -a 256 ${DIST_NAME} | cut -d ' ' -f1)
+- echo ${DIST_NAME} ${DIST_SIZE} ${DIST_SHA256} >micronucleus-${VER}-${TARGET_OS}.sha256.txt
+notifications:
+  email:
+    recipients:
+    - bengchet@cytron.io
+    on_success: change
+    on_failure: change
+deploy:
+  provider: releases
+  skip_cleanup: true
+  file_glob: true
+  api_key:
+    secure: aRGD15SeE3XsyZcGAQaHSzd+r/syWxWHj7LbCNeD/QtsDvOdkQds1uvpNmYneVB6/EDGSE+gB0aCzZAPbQatiDrT8ZZ1NCBIAX21tzGxtBVP4N87mX3ueVM9T2Utiq8gBN1DASpAqMIQ7uRBWzCXCfnr49HIpz21wSeo+KqDVEvHD3TcXonRIzVs4ErHbjhymRpbn3MPMNIUBb+xMMgmtXuC3J/v/a9ccuaUSZavpyoSz8mFUCuX5ffLHvZ6q2FhBcXt5evto0/oeYBgBGUOCLNVUibcm663X6IQyS4L+/bfuyK7W57ua9KQfl4FeU4A2IpMcM6yMDUfiA1e4fV0LSxJ4nzf+35rbTlaj0TK7kPA5EKiDvXuDMM4PrjiqcloTsNllfMCkdpRU7JiS0S2ZoRcaKI0yuofD4//kC0SXuK5Ky4DgXHEMZT4WGVC/ZBGl+7orB62c7Dse2jHZBQ8h9tcY912BZbmj14puGkMKL5kCzksqtOCLkTLA5xrGNZoeDF0YPvGEbATObEOoq7C5oVI8/4IIP0jQomjmFj2OLW91XdN4dRAVc5c5poymCoEfh3ufh7R8ivV5xwJrWUEmhpDa2+sKF08ONzxT7bRjw20Fj4WDV8mM9bxeVQgKac102tjMHzEi5c5L4cORHMiaTz0gBOYQLbDXeefCRV7R/s=
+  file: micronucleus-$TRAVIS_TAG-$TARGET_OS.*
+  on:
+    repo: bengchet/micronucleus
+    tags: true
