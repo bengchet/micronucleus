@@ -9,33 +9,42 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-linux-gnu
     - BUILD_DIR=/workdir
+    - INSTALL_MAKE='apt-get install -y build-essential'
+    - INSTALL_LIBUSB='apt-get install -y libusb-dev'
   - env:
     - TARGET_OS=linux32
     - DOCKER_IMAGE=dockcross/linux-x86
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
+    - INSTALL_MAKE='apt-get install -y build-essential'
+    - INSTALL_LIBUSB='apt-get install -y libusb-dev'
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=arm-linux-gnueabihf
     - BUILD_DIR=/workdir
+    - INSTALL_MAKE='apt-get install -y build-essential'
+    - INSTALL_LIBUSB='apt-get install -y libusb-dev'
   - env:
     - TARGET_OS=win32
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=i686-w64-mingw32
     - BUILD_DIR=/workdir
     - EXTRA_ARGS='-e ARCHIVE=tar'
+    - INSTALL_MAKE='apt-get install -y build-essential'
+    - INSTALL_LIBUSB='apt-get install -y libusb-dev'
   - env:
     - TARGET_OS=osx
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-apple-darwin
     - BUILD_DIR=/workdir
-before_install:
-- sudo apt-get install -y build-essential
-- sudo apt-get install -y libusb-dev
+    - INSTALL_MAKE='brew install build-essential'
+    - INSTALL_LIBUSB='brew install libusb'
 script:
 - export VER=$(git describe)
 - echo ${VER}
+- docker run --rm -v ${PWD}:${BUILD_DIR} ${INSTALL_MAKE}
+- docker run --rm -v ${PWD}:${BUILD_DIR} ${INSTALL_LIBUSB}
 - docker run --rm -v ${PWD}:${BUILD_DIR} -e TARGET_OS=${TARGET_OS} -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS} ${DOCKER_IMAGE} make clean dist
 - |
