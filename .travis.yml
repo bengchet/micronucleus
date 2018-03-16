@@ -43,8 +43,8 @@ matrix:
 script:
 - export VER=$(git describe)
 - echo ${VER}
-- docker run --rm -v ${PWD}:${BUILD_DIR} ${INSTALL_MAKE}
-- docker run --rm -v ${PWD}:${BUILD_DIR} ${INSTALL_LIBUSB}
+- docker run --rm -v ${PWD}:${BUILD_DIR} ${DOCKER_IMAGE} ${INSTALL_MAKE}
+- docker run --rm -v ${PWD}:${BUILD_DIR} ${DOCKER_IMAGE} ${INSTALL_LIBUSB}
 - docker run --rm -v ${PWD}:${BUILD_DIR} -e TARGET_OS=${TARGET_OS} -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS} ${DOCKER_IMAGE} make clean dist
 - |
