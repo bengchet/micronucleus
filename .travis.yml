@@ -44,8 +44,9 @@ script:
   -e TARGET_OS=${TARGET_OS}
   -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS}
+  -it
   ${DOCKER_IMAGE}
-  sh -c
+  /bin/bash -c
   "${CMD}"
 - |
   if [ $TARGET_OS = "win32" ]; then
