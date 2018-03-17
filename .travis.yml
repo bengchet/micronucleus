@@ -38,7 +38,7 @@ matrix:
 script:
 - export VER=$(git describe)
 - echo ${VER}
-- ->
+- >-
   docker run --rm 
   -v ${PWD}:${BUILD_DIR} 
   -e TARGET_OS=${TARGET_OS} 
