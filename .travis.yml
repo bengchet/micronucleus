@@ -9,19 +9,19 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-linux-gnu
     - BUILD_DIR=/workdir
-    - CMD='apt-get install libusb-dev libusb-config'
+    - CMD='apt-get install libusb-dev'
   - env:
     - TARGET_OS=linux32
     - DOCKER_IMAGE=dockcross/linux-x86
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
-    - CMD='apt-get install libusb-dev libusb-config'
+    - CMD='apt-get install libusb-dev'
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=arm-linux-gnueabihf
     - BUILD_DIR=/workdir
-    - CMD='apt-get install libusb-dev libusb-config'
+    - CMD='apt-get install libusb-dev'
   - env:
     - TARGET_OS=win32
     - DOCKER_IMAGE=multiarch/crossbuild
@@ -34,7 +34,7 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-apple-darwin
     - BUILD_DIR=/workdir
-    - CMD='brew install libusb'
+    - CMD='apt-get install libusb'
 script:
 - export VER=$(git describe)
 - echo ${VER}
