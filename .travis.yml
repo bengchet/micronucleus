@@ -46,8 +46,8 @@ script:
   ${EXTRA_ARGS}
   ${DOCKER_IMAGE}
   bash
-- docker exec -d ${TARGET_OS} ${CMD}
-- docker exec -d ${TARGET_OS} make clean dist
+- docker exec ${TARGET_OS} ${CMD}
+- docker exec ${TARGET_OS} make clean dist
 - docker stop ${TARGET_OS}
 - |
   if [ $TARGET_OS = "win32" ]; then
