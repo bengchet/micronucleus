@@ -39,14 +39,16 @@ script:
 - export VER=$(git describe)
 - echo ${VER}
 - >-
-  docker run --name=${TARGET_OS} --rm
+  docker run --name=${TARGET_OS} --rm -it -d
   -v ${PWD}:${BUILD_DIR}
   -e TARGET_OS=${TARGET_OS}
   -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS}
   ${DOCKER_IMAGE}
-  ${CMD}
+  bash
+- docker exec -d ${TARGET_OS} ${CMD}
 - docker exec -d ${TARGET_OS} make clean dist
+- docker stop ${TARGET_OS}
 - |
   if [ $TARGET_OS = "win32" ]; then
     rm -f micronucleus-${VER}-win32.tar.gz
