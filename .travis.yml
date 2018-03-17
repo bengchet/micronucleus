@@ -9,19 +9,19 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-linux-gnu
     - BUILD_DIR=/workdir
-    - CMD='apt-get install build-essential;apt-get install libusb-dev;make clean dist'
+    - CMD='apt-get install libusb-dev libusb-config'
   - env:
     - TARGET_OS=linux32
     - DOCKER_IMAGE=dockcross/linux-x86
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
-    - CMD='apt-get install build-essential;apt-get install libusb-dev;make clean dist'
+    - CMD='apt-get install libusb-dev libusb-config'
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=arm-linux-gnueabihf
     - BUILD_DIR=/workdir
-    - CMD='apt-get install build-essential;apt-get install libusb-dev;make clean dist'
+    - CMD='apt-get install libusb-dev libusb-config'
   - env:
     - TARGET_OS=win32
     - DOCKER_IMAGE=multiarch/crossbuild
@@ -34,7 +34,7 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-apple-darwin
     - BUILD_DIR=/workdir
-    - CMD='brew install build-essential;brew install libusb;make clean dist'
+    - CMD='brew install libusb'
 script:
 - export VER=$(git describe)
 - echo ${VER}
@@ -45,7 +45,7 @@ script:
   -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS} 
   ${DOCKER_IMAGE}
-  apt-get install libusb-config libusb-dev
+  ${CMD} 
 - |
   if [ $TARGET_OS = "win32" ]; then
     rm -f micronucleus-${VER}-win32.tar.gz
