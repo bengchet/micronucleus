@@ -44,8 +44,9 @@ script:
   -e TARGET_OS=${TARGET_OS} 
   -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS} 
-  ${DOCKER_IMAGE} 
-  "${CMD}"
+  ${DOCKER_IMAGE}
+  /bin/sh -c
+  "apt-get install build-essential"
 - |
   if [ $TARGET_OS = "win32" ]; then
     rm -f micronucleus-${VER}-win32.tar.gz
