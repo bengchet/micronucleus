@@ -10,18 +10,21 @@ matrix:
     - CROSS_TRIPLE=x86_64-linux-gnu
     - BUILD_DIR=/workdir
     - CMD='apt-get install libusb-dev -y'
+    - CROSSBUILD=crossbuild
   - env:
     - TARGET_OS=linux32
     - DOCKER_IMAGE=dockcross/linux-x86
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
     - CMD='apt-get install libusb-dev:i386 -y'
+    - CROSSBUILD=
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=arm-linux-gnueabihf
     - BUILD_DIR=/workdir
     - CMD='apt-get install libusb-dev:armhf -y'
+    - CROSSBUILD=crossbuild
   - env:
     - TARGET_OS=win32
     - DOCKER_IMAGE=multiarch/crossbuild
@@ -29,15 +32,18 @@ matrix:
     - BUILD_DIR=/workdir
     - EXTRA_ARGS='-e ARCHIVE=tar'
     - CMD=
+    - CROSSBUILD=crossbuild
   - env:
     - TARGET_OS=osx
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-apple-darwin14
     - BUILD_DIR=/workdir
     - CMD=
+    - CROSSBUILD=crossbuild
 script:
-- export VER=`git describe --always`
 - export CONTAINER=test
+- echo ${CONTAINER}
+- export VER=`git describe --always`
 - echo ${VER}
 
   # run docker containers for multiple images
@@ -52,24 +58,24 @@ script:
 
   # install libusb for linux platforms only
 - |
-  if [[ "$CMD" != "" ]]; then 
+  if [ "$CMD" != "" ]; then 
     docker exec ${CONTAINER} ${CMD} 
   fi
 
   # for mac, we use another method to install libusb
 - |
-  if [[ "$TARGET_OS" == "osx" ]]; then 
-    docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
+  if [ "$TARGET_OS" = "osx" ]; then 
+    docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:\$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
   fi
 
   # for windows, we use libusb-win32 package
 - |
-  if [[ "$TARGET_OS" == "win32" ]]; then
+  if [ "$TARGET_OS" = "win32" ]; then
      docker exec ${CONTAINER} wget https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.6.0/libusb-win32-bin-1.2.6.0.zip/download -O libusb-win32-bin-1.2.6.0.zip
      docker exec ${CONTAINER} unzip libusb-win32-bin-1.2.6.0.zip
   fi
 
-- docker exec ${CONTAINER} crossbuild make clean dist
+- docker exec ${CONTAINER} ${CROSSBUILD} make clean dist
 - docker stop ${CONTAINER}
 - |
   if [ $TARGET_OS = "win32" ]; then
