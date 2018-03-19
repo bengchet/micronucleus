@@ -15,13 +15,13 @@ matrix:
     - DOCKER_IMAGE=dockcross/linux-x86
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
-    - CMD='apt-get install libusb-dev'
+    - CMD='apt-get install libusb-dev:i386'
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=arm-linux-gnueabihf
     - BUILD_DIR=/workdir
-    - CMD='apt-get install libusb-dev'
+    - CMD='apt-get install libusb-dev:armhf'
   - env:
     - TARGET_OS=win32
     - DOCKER_IMAGE=multiarch/crossbuild
@@ -34,21 +34,42 @@ matrix:
     - DOCKER_IMAGE=multiarch/crossbuild
     - CROSS_TRIPLE=x86_64-apple-darwin
     - BUILD_DIR=/workdir
-    - CMD='apt-get install libusb'
+    - CMD=
 script:
-- export VER=$(git describe)
+- export VER=`git describe --always`
+- export CONTAINER=test
 - echo ${VER}
+
+  # run docker containers for multiple images
 - >-
-  docker run --name=${TARGET_OS} --rm -it -d
+  docker run --name=${CONTAINER} --rm -it -d
   -v ${PWD}:${BUILD_DIR}
   -e TARGET_OS=${TARGET_OS}
   -e CROSS_TRIPLE=${CROSS_TRIPLE}
   ${EXTRA_ARGS}
   ${DOCKER_IMAGE}
   bash
-- docker exec ${TARGET_OS} ${CMD}
-- docker exec ${TARGET_OS} make clean dist
-- docker stop ${TARGET_OS}
+
+  # install libusb for linux platforms only
+- if [[ "$CMD" != "" ]]; then docker exec ${CONTAINER} ${CMD} fi
+
+  # for mac, we use another method to install libusb
+- |
+  if [[ "$TARGET_OS" == "osx" ]]; then 
+    docker exec ${CONTAINER} export PATH=/usr/osxcross/bin:$PATH
+    docker exec ${CONTAINER} export MACOSX_DEPLOYMENT_TARGET = $DARWIN_SDK_VERSION
+    docker exec ${CONTAINER} omp install libusb-compat
+  fi
+
+  # for windows, we use libusb-win32 package
+- |
+  if [[ "$TARGET_OS" == "win32" ]]; then
+     docker exec ${CONTAINER} wget https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.6.0/libusb-win32-bin-1.2.6.0.zip/download -O libusb-win32-bin-1.2.6.0.zip
+     docker exec ${CONTAINER} unzip libusb-win32-bin-1.2.6.0.zip
+  fi
+
+- docker exec ${CONTAINER} crossbuild make clean dist
+- docker stop ${CONTAINER}
 - |
   if [ $TARGET_OS = "win32" ]; then
     rm -f micronucleus-${VER}-win32.tar.gz
