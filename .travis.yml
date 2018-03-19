@@ -51,7 +51,10 @@ script:
   bash
 
   # install libusb for linux platforms only
-- if [[ "$CMD" != "" ]]; then docker exec ${CONTAINER} ${CMD} fi
+- |
+  if [[ "$CMD" != "" ]]; then 
+    docker exec ${CONTAINER} ${CMD} 
+  fi
 
   # for mac, we use another method to install libusb
 - |
