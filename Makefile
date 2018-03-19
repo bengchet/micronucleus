@@ -1,7 +1,7 @@
 # Makefile initially writen for Little-Wire by Omer Kilic <omerkilic@gmail.com>
 # Later on modified by ihsan Kehribar <ihsan@kehribar.me> for Micronucleus bootloader application.
 
-#CC=/usr/$(CROSS_TRIPLE)/bin/gcc
+CC=gcc
 
 ifndef TARGET_OS
 ifeq ($(shell uname), Linux)
@@ -44,11 +44,11 @@ endif
 	OSFLAG = -D MAC_OS
 	# Uncomment these to create a static binary:
 	# USBLIBS = /opt/local/lib/libusb-legacy/libusb-legacy.a
-	# USBLIBS += -mmacosx-version-min=$(DARWIN_SDK_VERSION)
-	# USBLIBS += -framework CoreFoundation
-	# USBLIBS += -framework IOKit
+	USBLIBS += -mmacosx-version-min=$(DARWIN_SDK_VERSION)
+	USBLIBS += -framework CoreFoundation
+	USBLIBS += -framework IOKit
 	# Uncomment these to create a dual architecture binary:
-	# OSFLAG += -arch x86_64 -arch i386
+	OSFLAG += -arch x86_64 -arch i386
 else ifeq ($(TARGET_OS), openbsd)
 	USBFLAGS=$(shell libusb-config --cflags || libusb-legacy-config --cflags)
 	USBLIBS=$(shell libusb-config --libs || libusb-legacy-config --libs)
