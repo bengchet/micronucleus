@@ -36,7 +36,7 @@ matrix:
   - env:
     - TARGET_OS=osx
     - DOCKER_IMAGE=multiarch/crossbuild
-    - CROSS_TRIPLE=x86_64-apple-darwin14
+    - CROSS_TRIPLE=x86_64-apple-darwin
     - BUILD_DIR=/workdir
     - CMD=
     - CROSSBUILD=crossbuild
@@ -65,7 +65,7 @@ script:
   # for mac, we use another method to install libusb
 - |
   if [ "$TARGET_OS" = "osx" ]; then 
-    docker exec -e MACOSX_DEPLOYMENT_TARGET=10.10 test bash -c "export PATH=/usr/osxcross/bin:$PATH && osxcross-macports install libusb-compat"
+    docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
   fi
 
   # for windows, we use libusb-win32 package
