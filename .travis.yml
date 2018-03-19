@@ -65,7 +65,7 @@ script:
   # for mac, we use another method to install libusb
 - |
   if [ "$TARGET_OS" = "osx" ]; then 
-    docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:\$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
+    docker exec -e MACOSX_DEPLOYMENT_TARGET=10.10 test bash -c "export PATH=/usr/osxcross/bin:$PATH && osxcross-macports install libusb-compat"
   fi
 
   # for windows, we use libusb-win32 package
