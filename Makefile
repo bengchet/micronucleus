@@ -1,13 +1,6 @@
 # Makefile initially writen for Little-Wire by Omer Kilic <omerkilic@gmail.com>
 # Later on modified by ihsan Kehribar <ihsan@kehribar.me> for Micronucleus bootloader application.
 
-ifdef CROSS_TRIPLE
-CC=/usr/$(CROSS_TRIPLE)/bin/gcc
-endif
-ifndef CROSS_TRIPLE
-CC=gcc
-endif
-
 ifndef TARGET_OS
 ifeq ($(shell uname), Linux)
 	UNAME_M := $(shell uname -m)
