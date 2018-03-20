@@ -17,7 +17,7 @@ matrix:
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
     - CMD='apt-get install libusb-dev:i386 -y'
-    - CROSSBUILD=
+    - CROSSBUILD=dockcross
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
@@ -62,10 +62,15 @@ script:
     docker exec ${CONTAINER} ${CMD} 
   fi
 
-  # for mac, we use another method to install libusb
+  # for mac, we just download prebuilt binary and archive it
 - |
   if [ "$TARGET_OS" = "osx" ]; then 
-    docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
+    wget -q -O avr-dummy-darwin.tar.gz https://github.com/bengchet/Cytron-Arduino-URL/releases/download/0.0.1/avr-dummy-darwin.tar.gz
+    tar -xvf avr-dummy-darwin.tar.gz
+    mkdir -p micronucleus-${VER}-osx
+    cp avr-dummy-darwin/micronucleus micronucleus-${VER}-osx/
+    tar czf micronucleus-${VER}-osx.tar.gz micronucleus-${VER}-osx
+    #docker exec ${CONTAINER} bash -c "export PATH=/usr/osxcross/bin:$PATH && export MACOSX_DEPLOYMENT_TARGET=\$DARWIN_SDK_VERSION && osxcross-macports install libusb-compat"
   fi
 
   # for windows, we use libusb-win32 package
@@ -74,8 +79,11 @@ script:
      docker exec ${CONTAINER} wget https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.6.0/libusb-win32-bin-1.2.6.0.zip/download -O libusb-win32-bin-1.2.6.0.zip
      docker exec ${CONTAINER} unzip libusb-win32-bin-1.2.6.0.zip
   fi
-
-- docker exec ${CONTAINER} ${CROSSBUILD} make clean dist
+  # Build binaries only on win32 and linux platforms
+- |
+  if [ "$TARGET_OS" != "osx" ]; then
+    docker exec ${CONTAINER} ${CROSSBUILD} make clean dist
+  fi
 - docker stop ${CONTAINER}
 - |
   if [ $TARGET_OS = "win32" ]; then

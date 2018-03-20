@@ -43,7 +43,7 @@ endif
 	EXE_SUFFIX =
 	OSFLAG = -D MAC_OS
 	# Uncomment these to create a static binary:
-	# USBLIBS = /opt/local/lib/libusb-legacy/libusb-legacy.a
+	#USBLIBS = /usr/local/lib/libusb-legacy/libusb-legacy.a	
 	USBLIBS += -mmacosx-version-min=$(DARWIN_SDK_VERSION)
 	USBLIBS += -framework CoreFoundation
 	USBLIBS += -framework IOKit
