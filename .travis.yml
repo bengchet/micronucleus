@@ -17,7 +17,7 @@ matrix:
     - CROSS_TRIPLE=i686-linux-gnu
     - BUILD_DIR=/work
     - CMD='apt-get install libusb-dev:i386 -y'
-    - CROSSBUILD=dockcross
+    - CROSSBUILD=
   - env:
     - TARGET_OS=linux-armhf
     - DOCKER_IMAGE=multiarch/crossbuild
